@@ -6,7 +6,7 @@ A real-time endoscopy video analysis application that uses deep learning to **cl
 
 ## 🎬 Demo
 
-https://github.com/AboSaree/AI_powered-Endoscopy-simulation/blob/main/Demo/DEMO.mp4
+https://github.com/user-attachments/assets/1aa38e13-0c15-4ac6-8b89-75e65d01a5d1
 
 
 ---
