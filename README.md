@@ -11,6 +11,7 @@ A real-time endoscopy video analysis application that uses deep learning to **cl
 - [Project Structure](#project-structure)
 - [Datasets](#datasets)
 - [Models](#models)
+- [Results & Model Comparison](#results--model-comparison)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
@@ -61,6 +62,16 @@ AI_powered-Endoscopy-simulation/
 │   ├── esophagitis_yolov8_kaggle.ipynb    # YOLOv8 training notebook
 │   └── Yolo_script.py                    # Standalone YOLOv8 training script
 │
+├── Results/                      # Training results, plots & comparison figures
+│   ├── Custom CNN vs Efficient Net.png
+│   ├── AUC Graph for Custom CNN.png
+│   ├── AUC Graph for Efficient Net.png
+│   ├── Custom CNN Classification Report .png
+│   ├── Custom CNN Confusion matrix .png
+│   ├── Efficient Net Classification Report.png
+│   ├── Efficient Net Confusion matrix .png
+│   └── Custom CNN Grad-CAM.png
+│
 ├── Sample Video/                 # Sample endoscopy video for testing
 │   └── endoscope.mp4
 │
@@ -109,6 +120,94 @@ The detection model was trained on a **custom dataset** created manually using [
 
 **Detection output:**
 - Bounding boxes with confidence scores around detected esophagitis regions
+
+---
+
+## Results & Model Comparison
+
+Two classification architectures were trained and evaluated on the Kvasir v2 dataset: a **Custom CNN** built from scratch and an **EfficientNetB0** fine-tuned via transfer learning. Both were tested on 400 images (200 esophagitis, 200 normal-z-line).
+
+### Overall Comparison
+
+![Custom CNN vs EfficientNetB0 — Accuracy and AUC comparison](Results/Custom%20CNN%20vs%20Efficient%20Net.png)
+
+| Metric | Custom CNN | EfficientNetB0 (fine-tuned) |
+|--------|-----------|----------------------------|
+| **Accuracy** | 78.75% | 77.75% |
+| **ROC-AUC** | 0.863 | **0.874** |
+| **Macro F1** | 0.79 | 0.78 |
+
+Although the Custom CNN achieved a slightly higher accuracy (78.75% vs 77.75%), the **EfficientNetB0 model was selected** as the final classifier because it achieved a **higher AUC score (0.874 vs 0.863)**. AUC is a more robust metric for medical imaging tasks as it measures the model's ability to discriminate between classes across all thresholds, making it less sensitive to class imbalance and threshold selection.
+
+---
+
+### Custom CNN Results
+
+<details>
+<summary>📊 Click to expand Custom CNN details</summary>
+
+#### Classification Report
+
+![Custom CNN Classification Report](Results/Custom%20CNN%20Classification%20Report%20.png)
+
+| Class | Precision | Recall | F1-Score | Support |
+|-------|-----------|--------|----------|---------|
+| Esophagitis | 0.86 | 0.69 | 0.76 | 200 |
+| Normal-z-line | 0.74 | 0.89 | 0.81 | 200 |
+| **Accuracy** | | | **0.79** | **400** |
+
+#### Confusion Matrix
+
+![Custom CNN Confusion Matrix](Results/Custom%20CNN%20Confusion%20matrix%20.png)
+
+- Correctly classified **138** esophagitis and **177** normal images
+- Misclassified 62 esophagitis as normal (false negatives)
+- Misclassified 23 normal as esophagitis (false positives)
+
+#### ROC-AUC Curve
+
+![Custom CNN AUC Curve — AUC = 0.863](Results/AUC%20Graph%20for%20Custom%20CNN.png)
+
+</details>
+
+---
+
+### EfficientNetB0 Results (Selected Model ✅)
+
+<details>
+<summary>📊 Click to expand EfficientNetB0 details</summary>
+
+#### Classification Report
+
+![EfficientNetB0 Classification Report](Results/Efficient%20Net%20Classification%20Report.png)
+
+| Class | Precision | Recall | F1-Score | Support |
+|-------|-----------|--------|----------|---------|
+| Esophagitis | 0.84 | 0.69 | 0.75 | 200 |
+| Normal-z-line | 0.73 | 0.87 | 0.80 | 200 |
+| **Accuracy** | | | **0.78** | **400** |
+
+#### Confusion Matrix
+
+![EfficientNetB0 Confusion Matrix](Results/Efficient%20Net%20Confusion%20matrix%20.png)
+
+- Correctly classified **137** esophagitis and **174** normal images
+- Misclassified 63 esophagitis as normal (false negatives)
+- Misclassified 26 normal as esophagitis (false positives)
+
+#### ROC-AUC Curve
+
+![EfficientNetB0 AUC Curve — AUC = 0.874](Results/AUC%20Graph%20for%20Efficient%20Net.png)
+
+</details>
+
+---
+
+### Grad-CAM Visualization
+
+Grad-CAM (Gradient-weighted Class Activation Mapping) was applied to the Custom CNN to visualize which regions of the image the model focuses on when making predictions. The heatmaps confirm that the model attends to clinically relevant areas within the endoscopic images.
+
+![Grad-CAM heatmap visualization for esophagitis and normal-z-line samples](Results/Custom%20CNN%20Grad-CAM.png)
 
 ---
 
