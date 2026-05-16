@@ -70,7 +70,9 @@ AI_powered-Endoscopy-simulation/
 │   ├── Custom CNN Confusion matrix .png
 │   ├── Efficient Net Classification Report.png
 │   ├── Efficient Net Confusion matrix .png
-│   └── Custom CNN Grad-CAM.png
+│   ├── Custom CNN Grad-CAM.png
+│   ├── Plots for Yolo model.png
+│   └── Confussion matrix for Yolo model .png
 │
 ├── Sample Video/                 # Sample endoscopy video for testing
 │   └── endoscope.mp4
@@ -208,6 +210,56 @@ Although the Custom CNN achieved a slightly higher accuracy (78.75% vs 77.75%), 
 Grad-CAM (Gradient-weighted Class Activation Mapping) was applied to the Custom CNN to visualize which regions of the image the model focuses on when making predictions. The heatmaps confirm that the model attends to clinically relevant areas within the endoscopic images.
 
 ![Grad-CAM heatmap visualization for esophagitis and normal-z-line samples](Results/Custom%20CNN%20Grad-CAM.png)
+
+---
+
+## YOLOv8 Detection Results
+
+### ⚠️ Dataset Limitation — Why Accuracy Is Low
+
+One of the core challenges of this project was the **near-complete absence of publicly available annotated datasets** for esophagitis *detection* (bounding box localisation). While Kvasir v2 provides classification-level labels, it does not include bounding box annotations suitable for object detection training.
+
+To overcome this, the detection dataset was **created entirely from scratch by manually annotating endoscopy images using [Roboflow](https://roboflow.com/)**. Every bounding box was drawn by hand, which introduced several unavoidable constraints:
+
+- 📦 **Very small dataset** — the number of annotated images was far below what is typically required to train a reliable object detector.
+- 🖊️ **Manual annotations** — bounding boxes were drawn by a non-expert, introducing inconsistencies in label quality.
+- 🔁 **Limited diversity** — the images came from a narrow visual distribution, reducing the model's ability to generalise.
+- 🚫 **No public benchmark** — there is no established detection dataset for this specific task to compare against or augment from.
+
+As a direct consequence, the YOLOv8m model trained on this dataset shows **significantly lower performance** than the classifier, and its detections should be treated as **approximate and indicative only**.
+
+---
+
+### Training Curves
+
+The plots below show training and validation losses alongside precision, recall, mAP50, and mAP50-95 across ~60 epochs. While losses decrease steadily, the detection metrics plateau at low values — a direct consequence of the small, manually annotated dataset.
+
+![YOLOv8 training curves — loss, precision, recall, mAP50, mAP50-95](Results/Plots%20for%20Yolo%20model.png)
+
+| Metric | Approximate Value |
+|--------|------------------|
+| Precision | ~0.40 |
+| Recall | ~0.35 |
+| **mAP50** | **~0.30** |
+| **mAP50-95** | **~0.11** |
+
+These values are substantially below production-level thresholds (typically mAP50 > 0.6 for reliable detection), which is expected given the dataset constraints.
+
+---
+
+### Confusion Matrix
+
+![YOLOv8 confusion matrix — esophagitis vs background](Results/Confussion%20matrix%20for%20Yolo%20model%20.png)
+
+The confusion matrix reveals the core weakness of the model:
+
+- **96** esophagitis instances were correctly detected
+- **74** esophagitis instances were **missed** (false negatives — predicted as background)
+- **240** background regions were correctly rejected
+
+A false-negative rate of ~44% (74 out of 170) is a direct reflection of the small and inconsistently annotated training set. The model has learned a general shape of the lesion but struggles with boundary cases due to the lack of training diversity.
+
+> ⚠️ **Important:** These detection results are not suitable for clinical use. The model is included in this project as a **proof-of-concept simulation** of what a full detection pipeline would look like, pending a properly curated and annotated dataset.
 
 ---
 
